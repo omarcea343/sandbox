@@ -1,6 +1,7 @@
 import { ClerkProvider } from "@clerk/nextjs"
 import { shadcn } from "@clerk/ui/themes"
 import { ThemeProvider } from "@/components/theme-provider"
+import { TooltipProvider } from "@/components/ui/tooltip"
 import { cn } from "@/lib/utils"
 import { Fraunces, Geist, Geist_Mono } from "next/font/google"
 import { Metadata } from "next/types"
@@ -46,7 +47,9 @@ export default function RootLayout({
         >
             <body>
                 <ClerkProvider appearance={{ theme: shadcn }}>
-                    <ThemeProvider>{children}</ThemeProvider>
+                    <ThemeProvider>
+                        <TooltipProvider>{children}</TooltipProvider>
+                    </ThemeProvider>
                 </ClerkProvider>
             </body>
         </html>
