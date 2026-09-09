@@ -1,4 +1,12 @@
-import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from "@/components/ui/empty"
+import { ChatComposer } from "@/components/chat-composer"
+import {
+    Empty,
+    EmptyContent,
+    EmptyDescription,
+    EmptyHeader,
+    EmptyMedia,
+    EmptyTitle,
+} from "@/components/ui/empty"
 import Image from "next/image"
 
 export default function Page() {
@@ -15,6 +23,9 @@ export default function Page() {
                         words. If you can describe it, you can play it.
                     </EmptyDescription>
                 </EmptyHeader>
+                <EmptyContent className="max-w-2xl">
+                    <ChatComposer />
+                </EmptyContent>
             </Empty>
         </div>
     )
