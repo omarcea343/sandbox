@@ -6,8 +6,7 @@
     "scripts": {
         "dev": "next dev",
         "build": "next build",
-        "start": "node scripts/migrate.mjs && next start",
-        "db:migrate:run": "node scripts/migrate.mjs",
+        "start": "drizzle-kit migrate && next start",
         "lint": "eslint",
         "format": "prettier --write \"**/*.{ts,tsx}\"",
         "typecheck": "tsc --noEmit",
