@@ -3,7 +3,7 @@ import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from "@/
 
 export default function Page() {
     return (
-        <div className="flex min-h-svh flex-col">
+        <div className="flex min-h-svh">
             <Empty>
                 <EmptyHeader>
                     <EmptyMedia>
@@ -11,8 +11,8 @@ export default function Page() {
                     </EmptyMedia>
                     <EmptyTitle className="text-2xl">What should we build today?</EmptyTitle>
                     <EmptyDescription>
-                        Build your own racers, shooters, puzzles and whole worlds using your own words.
-                        If you can describe it, you can play it.
+                        Build your own racers, shooters, puzzles and whole worlds using your own
+                        words. If you can describe it, you can play it.
                     </EmptyDescription>
                 </EmptyHeader>
             </Empty>
