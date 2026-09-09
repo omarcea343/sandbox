@@ -21,8 +21,12 @@ import {
     SidebarMenuItem,
     SidebarTrigger,
 } from "@/components/ui/sidebar"
+import type { Game } from "@/lib/db/schema"
 
-export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+export function AppSidebar({
+    games,
+    ...props
+}: React.ComponentProps<typeof Sidebar> & { games: Pick<Game, "id" | "title">[] }) {
     const pathname = usePathname()
 
     return (
@@ -65,11 +69,23 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 <SidebarGroup>
                     <SidebarGroupLabel>Recents</SidebarGroupLabel>
                     <SidebarGroupContent>
-                        <Empty className="border p-2 group-data-[collapsible=icon]:hidden">
-                            <EmptyDescription className="text-xs">
-                                Your games will live here.
-                            </EmptyDescription>
-                        </Empty>
+                        {games.length === 0 ? (
+                            <Empty className="border p-2 group-data-[collapsible=icon]:hidden">
+                                <EmptyDescription className="text-xs">
+                                    Your games will live here.
+                                </EmptyDescription>
+                            </Empty>
+                        ) : (
+                            <SidebarMenu className="group-data-[collapsible=icon]:hidden">
+                                {games.map((game) => (
+                                    <SidebarMenuItem key={game.id}>
+                                        <SidebarMenuButton tooltip={game.title}>
+                                            <span className="truncate">{game.title}</span>
+                                        </SidebarMenuButton>
+                                    </SidebarMenuItem>
+                                ))}
+                            </SidebarMenu>
+                        )}
                         <SidebarMenu className="hidden group-data-[collapsible=icon]:flex">
                             <SidebarMenuItem>
                                 <SidebarMenuButton tooltip="Recents">

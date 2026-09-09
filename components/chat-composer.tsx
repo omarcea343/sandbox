@@ -1,3 +1,5 @@
+"use client"
+
 import { Button } from "@/components/ui/button"
 import {
     DropdownMenu,
@@ -11,6 +13,7 @@ import {
     InputGroupButton,
     InputGroupTextarea,
 } from "@/components/ui/input-group"
+import { createGame } from "@/lib/games/actions"
 import {
     ArrowUpIcon,
     CarIcon,
@@ -18,11 +21,14 @@ import {
     CrosshairIcon,
     Gamepad2Icon,
     Grid3x3Icon,
+    Loader2Icon,
     PickaxeIcon,
     PlaneIcon,
     SwordsIcon,
     ZapIcon,
 } from "lucide-react"
+import { useRef, useState } from "react"
+import { useFormStatus } from "react-dom"
 
 const SUGGESTIONS = [
     { icon: PickaxeIcon, label: "Voxel survival" },
@@ -34,11 +40,47 @@ const SUGGESTIONS = [
     { icon: Gamepad2Icon, label: "Sunny kingdom platformer" },
 ]
 
-export function ChatComposer() {
+function SendButton({ disabled }: { disabled: boolean }) {
+    const { pending } = useFormStatus()
+
     return (
-        <div className="flex w-full flex-col items-center gap-6">
+        <InputGroupButton
+            type="submit"
+            variant="default"
+            size="icon-sm"
+            className="ml-auto rounded-full"
+            aria-label="Send"
+            disabled={disabled || pending}
+        >
+            {pending ? <Loader2Icon className="animate-spin" /> : <ArrowUpIcon />}
+        </InputGroupButton>
+    )
+}
+
+export function ChatComposer() {
+    const formRef = useRef<HTMLFormElement>(null)
+    const [prompt, setPrompt] = useState("")
+
+    return (
+        <form
+            ref={formRef}
+            action={async (formData) => {
+                await createGame(formData)
+                setPrompt("")
+            }}
+            className="flex w-full flex-col items-center gap-6"
+        >
             <InputGroup className="bg-popover">
                 <InputGroupTextarea
+                    name="prompt"
+                    value={prompt}
+                    onChange={(event) => setPrompt(event.target.value)}
+                    onKeyDown={(event) => {
+                        if (event.key === "Enter" && !event.shiftKey) {
+                            event.preventDefault()
+                            formRef.current?.requestSubmit()
+                        }
+                    }}
                     placeholder="Describe the game you want to build…"
                     rows={1}
                     className="field-sizing-content max-h-48 min-h-10"
@@ -61,14 +103,7 @@ export function ChatComposer() {
                             <DropdownMenuItem>Gemini 3 Pro</DropdownMenuItem>
                         </DropdownMenuContent>
                     </DropdownMenu>
-                    <InputGroupButton
-                        variant="default"
-                        size="icon-sm"
-                        className="ml-auto rounded-full"
-                        aria-label="Send"
-                    >
-                        <ArrowUpIcon />
-                    </InputGroupButton>
+                    <SendButton disabled={prompt.trim() === ""} />
                 </InputGroupAddon>
             </InputGroup>
 
@@ -79,12 +114,13 @@ export function ChatComposer() {
                         variant="outline"
                         size="sm"
                         className="rounded-full font-normal text-muted-foreground"
+                        onClick={() => setPrompt(label)}
                     >
                         <Icon />
                         {label}
                     </Button>
                 ))}
             </div>
-        </div>
+        </form>
     )
 }

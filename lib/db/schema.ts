@@ -14,3 +14,5 @@ export const gamesTable = pgTable(
   },
   (table) => [index("games_org_id_created_at_idx").on(table.orgId, table.createdAt)],
 );
+
+export type Game = typeof gamesTable.$inferSelect;
