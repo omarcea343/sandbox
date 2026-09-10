@@ -1,6 +1,6 @@
 "use client"
 
-import { Button } from "@/components/ui/button"
+import { useChatPrompt } from "@/components/chat-prompt"
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -14,31 +14,9 @@ import {
     InputGroupTextarea,
 } from "@/components/ui/input-group"
 import { createGame } from "@/lib/games/actions"
-import {
-    ArrowUpIcon,
-    CarIcon,
-    ChevronDownIcon,
-    CrosshairIcon,
-    Gamepad2Icon,
-    Grid3x3Icon,
-    Loader2Icon,
-    PickaxeIcon,
-    PlaneIcon,
-    SwordsIcon,
-    ZapIcon,
-} from "lucide-react"
-import { useRef, useState } from "react"
+import { ArrowUpIcon, ChevronDownIcon, Grid3x3Icon, Loader2Icon } from "lucide-react"
+import { useRef } from "react"
 import { useFormStatus } from "react-dom"
-
-const SUGGESTIONS = [
-    { icon: PickaxeIcon, label: "Voxel survival" },
-    { icon: SwordsIcon, label: "Ink samurai duel" },
-    { icon: ZapIcon, label: "Comic-book firefight" },
-    { icon: PlaneIcon, label: "Realistic battlefield" },
-    { icon: CrosshairIcon, label: "Fight-first shooter" },
-    { icon: CarIcon, label: "Jungle expedition drive" },
-    { icon: Gamepad2Icon, label: "Sunny kingdom platformer" },
-]
 
 function SendButton({ disabled }: { disabled: boolean }) {
     const { pending } = useFormStatus()
@@ -59,7 +37,7 @@ function SendButton({ disabled }: { disabled: boolean }) {
 
 export function ChatComposer() {
     const formRef = useRef<HTMLFormElement>(null)
-    const [prompt, setPrompt] = useState("")
+    const { prompt, setPrompt } = useChatPrompt()
 
     return (
         <form
@@ -68,7 +46,7 @@ export function ChatComposer() {
                 await createGame(formData)
                 setPrompt("")
             }}
-            className="flex w-full flex-col items-center gap-6"
+            className="w-full"
         >
             <InputGroup className="bg-popover">
                 <InputGroupTextarea
@@ -106,21 +84,6 @@ export function ChatComposer() {
                     <SendButton disabled={prompt.trim() === ""} />
                 </InputGroupAddon>
             </InputGroup>
-
-            <div className="flex flex-wrap justify-center gap-2">
-                {SUGGESTIONS.map(({ icon: Icon, label }) => (
-                    <Button
-                        key={label}
-                        variant="outline"
-                        size="sm"
-                        className="rounded-full font-normal text-muted-foreground"
-                        onClick={() => setPrompt(label)}
-                    >
-                        <Icon />
-                        {label}
-                    </Button>
-                ))}
-            </div>
         </form>
     )
 }

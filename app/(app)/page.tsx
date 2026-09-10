@@ -1,4 +1,6 @@
 import { ChatComposer } from "@/components/chat-composer"
+import { ChatPromptProvider } from "@/components/chat-prompt"
+import { ChatSuggestions } from "@/components/chat-suggestions"
 import {
     Empty,
     EmptyContent,
@@ -23,8 +25,11 @@ export default function Page() {
                         words. If you can describe it, you can play it.
                     </EmptyDescription>
                 </EmptyHeader>
-                <EmptyContent className="max-w-2xl">
-                    <ChatComposer />
+                <EmptyContent className="max-w-2xl gap-6">
+                    <ChatPromptProvider>
+                        <ChatComposer />
+                        <ChatSuggestions />
+                    </ChatPromptProvider>
                 </EmptyContent>
             </Empty>
         </div>
