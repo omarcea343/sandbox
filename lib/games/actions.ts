@@ -6,6 +6,7 @@ import { deepSeek } from "@ai-sdk/deepseek"
 import { auth } from "@clerk/nextjs/server"
 import { generateText } from "ai"
 import { refresh } from "next/cache"
+import { redirect } from "next/navigation"
 
 const TITLE_MAX_LENGTH = 80
 
@@ -38,11 +39,13 @@ export async function createGame(prompt: string) {
         throw new Error("An active organization is required to create a game.")
     }
 
-    if (prompt.trim() === "") {
+    const description = prompt.trim()
+
+    if (description === "") {
         throw new Error("Describe the game you want to build.")
     }
 
-    const title = (await generateTitle(prompt.trim())) ?? prompt.trim().slice(0, TITLE_MAX_LENGTH)
+    const title = (await generateTitle(description)) ?? description.slice(0, TITLE_MAX_LENGTH)
 
     const [game] = await db.insert(gamesTable).values({ orgId, title }).returning()
 
@@ -50,5 +53,8 @@ export async function createGame(prompt: string) {
     // in the sidebar rendered by `app/(app)/layout.tsx`.
     refresh()
 
-    return game
+    // There's no thread to send the prompt to until the game row exists, so it
+    // rides along in the URL and `<ChatThread>` sends it as the first message.
+    // `redirect` throws, so nothing after this runs.
+    redirect(`/games/${game.id}?prompt=${encodeURIComponent(description)}`)
 }

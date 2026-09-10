@@ -16,6 +16,7 @@ import { Spinner } from "@/components/ui/spinner"
 import { useChat } from "@ai-sdk/react"
 import { DefaultChatTransport, type UIMessage } from "ai"
 import Image from "next/image"
+import { useEffect, useRef } from "react"
 
 // Text is the only part kind this thread renders. This predicate gates both
 // which messages are rendered and whether the pending spinner is shown, so if
@@ -38,9 +39,11 @@ function AssistantAvatar() {
 export function ChatThread({
     gameId,
     initialMessages,
+    initialPrompt,
 }: {
     gameId: string
     initialMessages: UIMessage[]
+    initialPrompt?: string
 }) {
     // The chat id is the game id, so the route handler knows which game's thread
     // to load and save.
@@ -56,6 +59,29 @@ export function ChatThread({
             }),
         }),
     })
+
+    // The prompt that created the game is handed over in the URL rather than
+    // sent from the home page, because the thread it belongs to doesn't exist
+    // until the game row does. Sending it from here puts it through the same
+    // transport as every other message, so the route handler persists it.
+    const hasSentInitialPrompt = useRef(false)
+
+    useEffect(() => {
+        // A thread that already has messages ignores the prompt: it can only be
+        // a stale or hand-written URL, and appending it would send a message the
+        // user didn't just type.
+        if (!initialPrompt || initialMessages.length > 0 || hasSentInitialPrompt.current) {
+            return
+        }
+
+        hasSentInitialPrompt.current = true
+        sendMessage({ text: initialPrompt })
+
+        // Drops the prompt from the URL without a re-render, so reloading
+        // mid-response doesn't send it a second time and the address matches
+        // the sidebar's link to this game.
+        window.history.replaceState(null, "", `/games/${gameId}`)
+    }, [gameId, initialMessages, initialPrompt, sendMessage])
 
     // The response message is pushed into `messages` as soon as the stream
     // starts, but it carries no text until the model gets past its reasoning.
