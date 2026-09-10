@@ -1,7 +1,6 @@
 import { ChatComposer } from "@/components/chat-composer"
 import { ChatPromptProvider } from "@/components/chat-prompt"
 import { ChatSuggestions } from "@/components/chat-suggestions"
-import { createGame } from "@/lib/games/actions"
 import {
     Empty,
     EmptyContent,
@@ -10,9 +9,13 @@ import {
     EmptyMedia,
     EmptyTitle,
 } from "@/components/ui/empty"
+import { createGame } from "@/lib/games/actions"
+import { auth } from "@clerk/nextjs/server"
 import Image from "next/image"
 
-export default function Page() {
+export default async function Page() {
+    await auth.protect({ unauthenticatedUrl: "/sign-in" })
+
     return (
         <div className="flex min-h-svh flex-col items-center justify-center gap-8">
             <Empty className="flex-none">

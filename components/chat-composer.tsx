@@ -38,9 +38,11 @@ type ChatComposerProps = {
     // Named with the `Action` suffix so a Server Function can be passed straight
     // through from a Server Component. Receives the current prompt.
     onSubmitAction: (prompt: string) => void | Promise<unknown>
+    // Blocks submitting while the caller is busy, e.g. a response is streaming.
+    disabled?: boolean
 }
 
-export function ChatComposer({ onSubmitAction }: ChatComposerProps) {
+export function ChatComposer({ onSubmitAction, disabled = false }: ChatComposerProps) {
     const formRef = useRef<HTMLFormElement>(null)
     const { prompt, setPrompt } = useChatPrompt()
 
@@ -60,7 +62,10 @@ export function ChatComposer({ onSubmitAction }: ChatComposerProps) {
                     onKeyDown={(event) => {
                         if (event.key === "Enter" && !event.shiftKey) {
                             event.preventDefault()
-                            formRef.current?.requestSubmit()
+
+                            if (!disabled) {
+                                formRef.current?.requestSubmit()
+                            }
                         }
                     }}
                     placeholder="Describe the game you want to build…"
@@ -85,7 +90,7 @@ export function ChatComposer({ onSubmitAction }: ChatComposerProps) {
                             <DropdownMenuItem>Gemini 3 Pro</DropdownMenuItem>
                         </DropdownMenuContent>
                     </DropdownMenu>
-                    <SendButton disabled={prompt.trim() === ""} />
+                    <SendButton disabled={disabled || prompt.trim() === ""} />
                 </InputGroupAddon>
             </InputGroup>
         </form>
