@@ -1,6 +1,7 @@
 import { ChatComposer } from "@/components/chat-composer"
 import { ChatPromptProvider } from "@/components/chat-prompt"
 import { ChatSuggestions } from "@/components/chat-suggestions"
+import { createGame } from "@/lib/games/actions"
 import {
     Empty,
     EmptyContent,
@@ -27,7 +28,7 @@ export default function Page() {
                 </EmptyHeader>
                 <EmptyContent className="max-w-2xl gap-6">
                     <ChatPromptProvider>
-                        <ChatComposer />
+                        <ChatComposer onSubmitAction={createGame} />
                         <ChatSuggestions />
                     </ChatPromptProvider>
                 </EmptyContent>

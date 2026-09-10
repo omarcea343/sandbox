@@ -1,3 +1,5 @@
+"use client"
+
 import { ChatComposer } from "@/components/chat-composer"
 import { ChatPromptProvider } from "@/components/chat-prompt"
 import { Bubble, BubbleContent } from "@/components/ui/bubble"
@@ -60,6 +62,11 @@ const MESSAGES = [
     },
 ] as const
 
+// Temporary stand-in until the thread is wired up to the chat route.
+function sendMessage(prompt: string) {
+    console.log(prompt)
+}
+
 export function ChatThread() {
     return (
         <div className="flex h-svh flex-col">
@@ -104,7 +111,7 @@ export function ChatThread() {
 
             <div className="mx-auto w-full max-w-3xl shrink-0 px-4 pb-4">
                 <ChatPromptProvider>
-                    <ChatComposer />
+                    <ChatComposer onSubmitAction={sendMessage} />
                 </ChatPromptProvider>
             </div>
         </div>

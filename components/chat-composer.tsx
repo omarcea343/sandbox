@@ -13,7 +13,6 @@ import {
     InputGroupButton,
     InputGroupTextarea,
 } from "@/components/ui/input-group"
-import { createGame } from "@/lib/games/actions"
 import { ArrowUpIcon, ChevronDownIcon, Grid3x3Icon, Loader2Icon } from "lucide-react"
 import { useRef } from "react"
 import { useFormStatus } from "react-dom"
@@ -35,22 +34,27 @@ function SendButton({ disabled }: { disabled: boolean }) {
     )
 }
 
-export function ChatComposer() {
+type ChatComposerProps = {
+    // Named with the `Action` suffix so a Server Function can be passed straight
+    // through from a Server Component. Receives the current prompt.
+    onSubmitAction: (prompt: string) => void | Promise<unknown>
+}
+
+export function ChatComposer({ onSubmitAction }: ChatComposerProps) {
     const formRef = useRef<HTMLFormElement>(null)
     const { prompt, setPrompt } = useChatPrompt()
 
     return (
         <form
             ref={formRef}
-            action={async (formData) => {
-                await createGame(formData)
+            action={async () => {
+                await onSubmitAction(prompt)
                 setPrompt("")
             }}
             className="w-full"
         >
             <InputGroup className="bg-popover">
                 <InputGroupTextarea
-                    name="prompt"
                     value={prompt}
                     onChange={(event) => setPrompt(event.target.value)}
                     onKeyDown={(event) => {
