@@ -1,0 +1,1 @@
+ALTER TABLE "games" ADD COLUMN "messages" jsonb DEFAULT '[]' NOT NULL;

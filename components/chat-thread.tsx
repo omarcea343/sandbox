@@ -14,7 +14,18 @@ import {
 } from "@/components/ui/message-scroller"
 import { Spinner } from "@/components/ui/spinner"
 import { useChat } from "@ai-sdk/react"
+import { DefaultChatTransport, type UIMessage } from "ai"
 import Image from "next/image"
+
+// Text is the only part kind this thread renders. This predicate gates both
+// which messages are rendered and whether the pending spinner is shown, so if
+// reasoning or tool parts are ever rendered too, widen it here rather than at
+// the call sites: if the two disagree, a response that only has the newly
+// rendered parts either shows a second avatar next to the spinner or replaces
+// the spinner with an empty bubble.
+function hasText(message: UIMessage) {
+    return message.parts.some((part) => part.type === "text" && part.text !== "")
+}
 
 function AssistantAvatar() {
     return (
@@ -24,10 +35,37 @@ function AssistantAvatar() {
     )
 }
 
-export function ChatThread() {
-    // The transport defaults to POSTing to `/api/chat`, which is where the
-    // route handler lives, so it does not need to be configured here.
-    const { messages, sendMessage, status, error } = useChat()
+export function ChatThread({
+    gameId,
+    initialMessages,
+}: {
+    gameId: string
+    initialMessages: UIMessage[]
+}) {
+    // The chat id is the game id, so the route handler knows which game's thread
+    // to load and save.
+    const { messages, sendMessage, status, error } = useChat({
+        id: gameId,
+        messages: initialMessages,
+        // The api defaults to `/api/chat`, which is where the route handler
+        // lives, so only the request body needs configuring here: the thread is
+        // already persisted, so only the new message has to go over the wire.
+        transport: new DefaultChatTransport({
+            prepareSendMessagesRequest: ({ id, messages }) => ({
+                body: { id, message: messages[messages.length - 1] },
+            }),
+        }),
+    })
+
+    // The response message is pushed into `messages` as soon as the stream
+    // starts, but it carries no text until the model gets past its reasoning.
+    // Holding those messages back keeps the spinner up for that whole stretch,
+    // instead of swapping it for an empty bubble.
+    const visibleMessages = messages.filter(hasText)
+    const lastMessage = messages[messages.length - 1]
+    const isAwaitingResponse =
+        (status === "submitted" || status === "streaming") &&
+        (lastMessage?.role !== "assistant" || !hasText(lastMessage))
 
     return (
         <div className="flex h-svh flex-col">
@@ -35,7 +73,7 @@ export function ChatThread() {
                 <MessageScroller className="flex-1">
                     <MessageScrollerViewport>
                         <MessageScrollerContent className="mx-auto w-full max-w-3xl px-4 py-8">
-                            {messages.map((message) => {
+                            {visibleMessages.map((message) => {
                                 const isAssistant = message.role === "assistant"
 
                                 return (
@@ -61,7 +99,7 @@ export function ChatThread() {
                                 )
                             })}
 
-                            {status === "submitted" && (
+                            {isAwaitingResponse && (
                                 <MessageScrollerItem>
                                     <Message align="start">
                                         <AssistantAvatar />

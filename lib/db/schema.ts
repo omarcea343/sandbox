@@ -1,4 +1,5 @@
-import { index, pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
+import type { UIMessage } from "ai";
+import { index, jsonb, pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
 
 export const gamesTable = pgTable(
   "games",
@@ -6,6 +7,9 @@ export const gamesTable = pgTable(
     id: uuid().primaryKey().defaultRandom(),
     orgId: text().notNull(),
     title: text().notNull(),
+    // The full chat thread for the game, stored in the `useChat` UI message
+    // format so it can be handed straight back to the client.
+    messages: jsonb().$type<UIMessage[]>().notNull().default([]),
     createdAt: timestamp().notNull().defaultNow(),
     updatedAt: timestamp()
       .notNull()
