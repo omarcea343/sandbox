@@ -13,8 +13,16 @@ import {
     MessageScrollerViewport,
 } from "@/components/ui/message-scroller"
 import { Spinner } from "@/components/ui/spinner"
+import {
+    deleteGameChatSession,
+    mintGameChatAccessToken,
+    startGameChatSession,
+} from "@/lib/games/actions"
+import type { gameChat } from "@/trigger/chat"
 import { useChat } from "@ai-sdk/react"
-import { DefaultChatTransport, type UIMessage } from "ai"
+import type { ChatSessionPersistedState } from "@trigger.dev/sdk/chat"
+import { useTriggerChatTransport } from "@trigger.dev/sdk/chat/react"
+import type { UIMessage } from "ai"
 import Image from "next/image"
 import { useEffect, useRef } from "react"
 
@@ -39,31 +47,50 @@ function AssistantAvatar() {
 export function ChatThread({
     gameId,
     initialMessages,
+    initialSession,
     initialPrompt,
 }: {
     gameId: string
     initialMessages: UIMessage[]
+    initialSession?: ChatSessionPersistedState
     initialPrompt?: string
 }) {
-    // The chat id is the game id, so the route handler knows which game's thread
-    // to load and save.
+    // The chat id is the game id, so the agent knows which game's thread to load
+    // and save. The transport talks to the `game-chat` agent directly; the two
+    // actions it calls are the only server-side steps left, and both check that
+    // this game belongs to the caller's org. `gameChat` is imported as a type
+    // only, so none of the task's dependencies reach the browser bundle.
+    const transport = useTriggerChatTransport<typeof gameChat>({
+        task: "game-chat",
+        accessToken: ({ chatId }) => mintGameChatAccessToken(chatId),
+        startSession: ({ chatId, clientData }) => startGameChatSession({ chatId, clientData }),
+        // Hydrated from the session row, so a reloaded tab reconnects without a
+        // round-trip to create a session.
+        sessions: initialSession ? { [gameId]: initialSession } : undefined,
+        onSessionChange: (id, session) => {
+            if (!session) {
+                // Fire and forget: the row is only a reconnection shortcut, so a
+                // failed cleanup shouldn't surface as an unhandled rejection.
+                deleteGameChatSession(id).catch(() => {})
+            }
+        },
+    })
+
     const { messages, sendMessage, status, error } = useChat({
         id: gameId,
         messages: initialMessages,
-        // The api defaults to `/api/chat`, which is where the route handler
-        // lives, so only the request body needs configuring here: the thread is
-        // already persisted, so only the new message has to go over the wire.
-        transport: new DefaultChatTransport({
-            prepareSendMessagesRequest: ({ id, messages }) => ({
-                body: { id, message: messages[messages.length - 1] },
-            }),
-        }),
+        transport,
+        // Reconnects to a response that was still streaming when the page was
+        // reloaded, picking up from the stored `lastEventId` rather than
+        // replaying what's already rendered. A brand new thread has nothing to
+        // reconnect to.
+        resume: initialMessages.length > 0,
     })
 
     // The prompt that created the game is handed over in the URL rather than
     // sent from the home page, because the thread it belongs to doesn't exist
     // until the game row does. Sending it from here puts it through the same
-    // transport as every other message, so the route handler persists it.
+    // transport as every other message, so the agent persists it.
     const hasSentInitialPrompt = useRef(false)
 
     useEffect(() => {

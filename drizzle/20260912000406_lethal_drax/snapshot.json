@@ -1,0 +1,218 @@
+{
+  "version": "8",
+  "dialect": "postgres",
+  "id": "1edb5871-5b35-4d1a-98ee-d38d9ae23509",
+  "prevIds": [
+    "22b16580-5be0-4a40-8528-b50905116fd0"
+  ],
+  "ddl": [
+    {
+      "isRlsEnabled": false,
+      "name": "gameChatSessions",
+      "entityType": "tables",
+      "schema": "public"
+    },
+    {
+      "isRlsEnabled": false,
+      "name": "games",
+      "entityType": "tables",
+      "schema": "public"
+    },
+    {
+      "type": "uuid",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "gameId",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "gameChatSessions"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "publicAccessToken",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "gameChatSessions"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "lastEventId",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "gameChatSessions"
+    },
+    {
+      "type": "timestamp",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": "now()",
+      "generated": null,
+      "identity": null,
+      "name": "updatedAt",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "gameChatSessions"
+    },
+    {
+      "type": "uuid",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": "gen_random_uuid()",
+      "generated": null,
+      "identity": null,
+      "name": "id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "games"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "orgId",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "games"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "title",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "games"
+    },
+    {
+      "type": "jsonb",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": "'[]'",
+      "generated": null,
+      "identity": null,
+      "name": "messages",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "games"
+    },
+    {
+      "type": "timestamp",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": "now()",
+      "generated": null,
+      "identity": null,
+      "name": "createdAt",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "games"
+    },
+    {
+      "type": "timestamp",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": "now()",
+      "generated": null,
+      "identity": null,
+      "name": "updatedAt",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "games"
+    },
+    {
+      "nameExplicit": true,
+      "columns": [
+        {
+          "value": "orgId",
+          "isExpression": false,
+          "asc": true,
+          "nullsFirst": false,
+          "opclass": null
+        },
+        {
+          "value": "createdAt",
+          "isExpression": false,
+          "asc": true,
+          "nullsFirst": false,
+          "opclass": null
+        }
+      ],
+      "isUnique": false,
+      "where": null,
+      "with": "",
+      "method": "btree",
+      "concurrently": false,
+      "name": "games_org_id_created_at_idx",
+      "entityType": "indexes",
+      "schema": "public",
+      "table": "games"
+    },
+    {
+      "nameExplicit": false,
+      "columns": [
+        "gameId"
+      ],
+      "schemaTo": "public",
+      "tableTo": "games",
+      "columnsTo": [
+        "id"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "CASCADE",
+      "name": "gameChatSessions_gameId_games_id_fkey",
+      "entityType": "fks",
+      "schema": "public",
+      "table": "gameChatSessions"
+    },
+    {
+      "columns": [
+        "gameId"
+      ],
+      "nameExplicit": false,
+      "name": "gameChatSessions_pkey",
+      "schema": "public",
+      "table": "gameChatSessions",
+      "entityType": "pks"
+    },
+    {
+      "columns": [
+        "id"
+      ],
+      "nameExplicit": false,
+      "name": "games_pkey",
+      "schema": "public",
+      "table": "games",
+      "entityType": "pks"
+    }
+  ],
+  "renames": []
+}
